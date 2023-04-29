@@ -17,8 +17,8 @@ function BookStore({email}) {
   const handleBookSelect = (id, bookName) => {
     setSelectedBook(id);
     setBookName(bookName)
+    setErrorMsg("")
   };
-  console.log(selectedBook)
 
   const handleRentalPeriodSelect = (e) => {
     setRentalPeriod(parseInt(e.target.value));
@@ -30,18 +30,16 @@ function BookStore({email}) {
   } else {
      setTotalRent(baseCharge);
   }
+  setErrorMsg("")
   };
 
-  console.log("total rent", totalRent)
 
     useEffect(() => {
         axios.get(`http://localhost:4055/getbook`)
       .then((res) => {
-        console.log("books", res.data);
         setBooks(res.data);
       })
       .catch((err) => {
-        console.log("books error", err);
       });
 
       itemListAndRent()
@@ -51,7 +49,6 @@ function BookStore({email}) {
       let arr = []
       axios.get(`http://localhost:4055/itemlist`)
       .then((res) => {
-        console.log("books rent", res.data);
         res.data.map(item => {
           if(item.userId === userId){
             arr.push(item)
@@ -75,10 +72,8 @@ function BookStore({email}) {
       userId: userId,
       email: email
     }
-    console.log("bdhbfdhn pahle", data)
     {errorMsg === "" && axios.post("http://localhost:4055/additem", data)
     .then(res => {
-      console.log(res.data)
       setStatus(true)
     })
     .catch(err => {
@@ -86,19 +81,17 @@ function BookStore({email}) {
     })}
   }
 
-
   function validation(){
     if(email === ""){
       setErrorMsg("email is mandatory field")
     }
-    else if(selectedBook === 0){
+    else if(selectedBook === ""){
       setErrorMsg("Please select any of the book")
     }
     else if(rentalPeriod == 0){
       setErrorMsg("Please select days")
     }
   }
-console.log(" fv", item)
 
   return (
     <div style={{display: "flex", justifyContent: "space-between"}}>
@@ -106,7 +99,8 @@ console.log(" fv", item)
       <div style={{width: "50%"}}>
       <h1>Book Store</h1>
         <h2>Total rent for {rentalPeriod} days is:- <b>$ {totalRent}</b>
-            <button onClick={addBook}>BUY</button>
+        <button style={{ backgroundColor: '#4CAF50', color: 'white', padding: '10px 20px', border: 'none', borderRadius: '5px', cursor: 'pointer' }} onClick={addBook}>BUY</button>
+
         </h2>
       <div style={{marginBottom: "30px"}}>
         <label><b>Select number of days</b></label>
@@ -118,7 +112,7 @@ console.log(" fv", item)
           <option value="60">60 days</option>
         </select>
       </div>
-
+      <h3 style={{color: "red"}}>{errorMsg !== ""  && errorMsg}</h3>
        
       {books.map(book => {
   return (
@@ -128,7 +122,7 @@ console.log(" fv", item)
       </div>
       {item.find((item) => item.bookId === book._id) ? (
         <button disabled={true} onClick={() => {
-          handleBookSelect(book._id)
+          // handleBookSelect(book._id)
         }} style={{padding: "10px", backgroundColor: "gray", border: "none", color: "white", margin: "5px"}}>
           All Ready rented
         </button>
@@ -143,7 +137,7 @@ console.log(" fv", item)
   );
 })}
 
-          <h3 style={{color: "red"}}>{errorMsg !== ""  && errorMsg}</h3>
+          {/* <h3 style={{color: "red"}}>{errorMsg !== ""  && errorMsg}</h3> */}
       </div>
       <div style={{width: "50%", paddingTop: "90px"}}>
         <ShowItemDetails data={item} />
